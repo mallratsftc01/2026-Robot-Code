@@ -27,9 +27,9 @@ public class AdvancerSubsystem extends SubsystemBase {
 
     public AdvancerSubsystem() {
         AdavancerMotor = new SparkMax(ADVANCER_MOTOR_ID, MotorType.kBrushless);
-        AdvancerRoller = new SparkMax(ADVANCER_ROLLER_ID, MotorType.kBrushless);  
+        AdvancerRoller = new SparkMax(ADVANCER_ROLLER_ID, MotorType.kBrushless);
         SparkBaseConfig AdvancerMotorConfig = new SparkMaxConfig();
-        
+
         AdvancerMotorConfig.smartCurrentLimit(40, 40);
         AdvancerMotorConfig.disableFollowerMode();
 
@@ -53,16 +53,20 @@ public class AdvancerSubsystem extends SubsystemBase {
 
     public void reverse() {
         AdavancerMotor.set(ADVANCER_SPEED);
-        AdvancerRoller.set(1);
+        // AdvancerRoller.set(1);
     }
 
     public void stopAdvancer() {
         AdavancerMotor.set(0);
         AdvancerRoller.set(0);
-    } 
+    }
+
+    public void climber(double joystick) {
+        AdvancerRoller.set(joystick);
+    }
 
     public void advance() {
         AdavancerMotor.set(-ADVANCER_SPEED);
-        AdvancerRoller.set(-1);
+        // AdvancerRoller.set(-1);
     }
 }

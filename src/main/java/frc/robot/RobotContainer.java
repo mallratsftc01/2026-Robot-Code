@@ -91,7 +91,7 @@ public class RobotContainer {
       .withPosition(4, 0)
       .withSize(2, 1)
       .getEntry();
-  
+
   GenericEntry DIO_entry3 = DIO_tab.add("DIO 3", false)
       .withPosition(6, 0)
       .withSize(2, 1)
@@ -126,7 +126,7 @@ public class RobotContainer {
   private final ShooterSubsystem S = new ShooterSubsystem();
   private final IntakeSubystem I = new IntakeSubystem();
   private final BeamBreak beamBreak = new BeamBreak();
-  private final LimitSwitchSubsystem limitSwitches = new LimitSwitchSubsystem(); 
+  private final LimitSwitchSubsystem limitSwitches = new LimitSwitchSubsystem();
   private final AdvancerSubsystem A = new AdvancerSubsystem();
   private final HoodSubsystem H = new HoodSubsystem();
   private final DrivetrainIO D = new DrivetrainIO();
@@ -147,17 +147,15 @@ public class RobotContainer {
 
     lc = initLaserCAN();
 
-    
-
     SmartDashboard.putData("[Robot]Vision Pose Estimate", visionPoseEstimate);
     SmartDashboard.putData("[Robot]Overall Pose Estimate", overallPoseEstimate);
     NamedCommands.registerCommand("Aline Wheels", new AlineWheels(D));
     NamedCommands.registerCommand("Stop", new Stop(D));
     NamedCommands.registerCommand("Face Hub", new FaceTowardsCoordinates(D,
-            11.914,
-            4.051,
-            () -> 0,
-            () -> 0));
+        11.914,
+        4.051,
+        () -> 0,
+        () -> 0));
     PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
     autoChooser = new AutoCommandFactory(D, lc).generateAutoOptions();
     SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
@@ -192,47 +190,50 @@ public class RobotContainer {
             Slow,
             () -> driver.getPOV()));
     // new JoystickButton(driver, RED_BUTTON)
-    //     .onTrue(new Spin180(D).asProxy());
+    // .onTrue(new Spin180(D).asProxy());
 
     // new JoystickButton(driver, GREEN_BUTTON)
     // .onTrue(new FaceTowardsCoordinates(
-    //   D,
-    //   11.914 , 
-    //   4.051, 
-    //   () -> -driver.getRawAxis(LEFT_Y_AXIS), 
-    //   () -> driver.getRawAxis(LEFT_X_AXIS)));
+    // D,
+    // 11.914 ,
+    // 4.051,
+    // () -> -driver.getRawAxis(LEFT_Y_AXIS),
+    // () -> driver.getRawAxis(LEFT_X_AXIS)));
 
-    // new JoystickButton(driver, YELLOW_BUTTON).onTrue(new TimedTestDrive(D, 2000, 0.5));
+    // new JoystickButton(driver, YELLOW_BUTTON).onTrue(new TimedTestDrive(D, 2000,
+    // 0.5));
     // new JoystickButton(driver, GREEN_BUTTON).onTrue(new TimedTestWheelTurn(D,
     // 5000));
 
     // new JoystickButton(driver, GREEN_BUTTON)
     // .onTrue(new SequentialCommandGroup(
-    //     new ResetLocationCommand(D, Pose2d.kZero),
-    //     new WaitCommand(5),
-    //     new DriveToLocation(D, lc,
-    //         new PathContainer().addWaypoint(new Pose2d(2.196, 1.994,
-    //             Pose2d.kZero.getRotation()))
-    //     ),
-    //     new FaceTowardsCoordinates(D,
-    //         11.914,
-    //         4.051,
-    //         () -> 0,
-    //         () -> 0)
+    // new ResetLocationCommand(D, Pose2d.kZero),
+    // new WaitCommand(5),
+    // new DriveToLocation(D, lc,
+    // new PathContainer().addWaypoint(new Pose2d(2.196, 1.994,
+    // Pose2d.kZero.getRotation()))
+    // ),
+    // new FaceTowardsCoordinates(D,
+    // 11.914,
+    // 4.051,
+    // () -> 0,
+    // () -> 0)
     // ));
 
-    I.setDefaultCommand(new Intake(I, () -> operator.getRawButton(LEFT_BUMPER), () -> operator.getRawButton(RIGHT_BUMPER), () -> operator.getPOV() == 270, () -> operator.getPOV() == 90));
+    I.setDefaultCommand(new Intake(I, () -> operator.getRawButton(LEFT_BUMPER),
+        () -> operator.getRawButton(RIGHT_BUMPER), () -> operator.getPOV() == 270, () -> operator.getPOV() == 90));
 
     new JoystickButton(operator, GREEN_BUTTON)
-      .whileTrue(new Testing_Shoot(S, beamBreak));
+        .whileTrue(new Testing_Shoot(S, beamBreak));
 
     new JoystickButton(operator, RED_BUTTON)
-          .whileTrue(new Advance(A));
+        .whileTrue(new Advance(A));
 
     System.out.println("Ended configureBindings()");
   }
 
   public void teleopPeriodic() {
+    A.climber(operator.getRawAxis(LEFT_Y_AXIS));
     // I.testSliders(operator.getAxisType(LEFT_X_AXIS));
   }
 
