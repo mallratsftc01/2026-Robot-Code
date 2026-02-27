@@ -4,7 +4,13 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.revrobotics.PersistMode;
@@ -34,6 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
             .add("Motor 2 Velocity", 0)
             .getEntry();
 
+    private final VelocityVoltage velocityRequest = new VelocityVoltage(0);
 
     private final TalonFX shooterMotor;
     private final TalonFX shooterMotor2;
@@ -60,23 +67,21 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private void configureMotor() {
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        TalonFXConfiguration config2 = new TalonFXConfiguration();
+    TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        config2.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // Tune these gains for your mechanism
+        Slot0Configs slot0 = config.Slot0;
+        slot0.kP = 2.4;   // proportional
+        slot0.kI = 0.0;   // integral
+        slot0.kD = 0.1;   // derivative
+        slot0.kS = 0.25;  // static friction feedforward (volts)
+        slot0.kV = 0.12;  // velocity feedforward (volts per rot/s)
 
-        // config.idleMode(IdleMode.kCoast);
-        // config2.idleMode(IdleMode.kCoast);
-        // config.smartCurrentLimit(40, 40);
-        // config2.smartCurrentLimit(40, 40);
-        // config.
+        // Optional: set motion magic / current limits / etc.
+        config.MotionMagic.MotionMagicCruiseVelocity = 80;
+        config.MotionMagic.MotionMagicAcceleration = 160;
 
-        // config.voltageCompensation(12.0);
-        // config2.voltageCompensation(12.0);
-
-        // shooterMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        // shooterMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        shooterMotor.getConfigurator().apply(config);
     }
 
     /**
@@ -99,8 +104,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // Set motor outputs
         // shooterMotor.set(output1);
         // shooterMotor2.set(output2);
-        shooterMotor.set(targetVelocityEntry.getDouble(1));
-        shooterMotor2.set(-targetVelocityEntry.getDouble(1));
+        shooterMotor.setControl(velocityRequest.withVelocity(733));
+        // shooterMotor2.setControl(new MotionMagicVelocityVoltage(-targetVelocityEntry.getDouble(1)));
     }
 
     /**
@@ -137,5 +142,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // motor2VelocityEntry.setDouble(encoder2.getVelocity());
         SmartDashboard.putNumber("Shooter/Target RPM", TARGET_VELOCITY_RPM);
         // SmartDashboard.putBoolean("Shooter/At Target", atTargetVelocity());
+        SmartDashboard.putNumber("Motor Position", shooterMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Motor Velocity", shooterMotor.getVelocity().getValueAsDouble());
     }
 }

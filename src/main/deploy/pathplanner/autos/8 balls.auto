@@ -31,20 +31,8 @@
                 "data": {
                   "waitTime": 3.0
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset Location to 0,0,0 Red"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot to depot"
           }
         }
       ]

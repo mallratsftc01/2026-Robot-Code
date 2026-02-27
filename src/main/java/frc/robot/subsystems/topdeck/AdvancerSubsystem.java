@@ -27,7 +27,7 @@ public class AdvancerSubsystem extends SubsystemBase {
 
     public AdvancerSubsystem() {
         AdavancerMotor = new SparkMax(ADVANCER_MOTOR_ID, MotorType.kBrushless);
-        AdvancerRoller = new SparkMax(ADVANCER_ROLLER_ID, MotorType.kBrushless);
+        AdvancerRoller = new SparkMax(ADVANCER_ROLLER_ID, MotorType.kBrushed);
         SparkBaseConfig AdvancerMotorConfig = new SparkMaxConfig();
 
         AdvancerMotorConfig.smartCurrentLimit(40, 40);
