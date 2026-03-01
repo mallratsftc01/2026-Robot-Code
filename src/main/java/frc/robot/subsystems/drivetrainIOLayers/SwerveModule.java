@@ -16,6 +16,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -57,6 +58,11 @@ public class SwerveModule extends SubsystemBase {
     // 0).getEntry();
 
     private static final double DISTANCE_CORRECTION_FACTOR = 0.97;
+
+    private SimpleMotorFeedforward m_driveFeedforward;
+
+    private static final double TURN_KS = 0.1; // volts, tune this
+
 
     private PIDController turningPidController = new PIDController(2.9, 0.1, 0);
     // new ProfiledPIDController(
@@ -150,6 +156,8 @@ public class SwerveModule extends SubsystemBase {
         captureConfig();
 
         m_drivePIDController = new PIDController(s.pidP, s.pidI, 0);
+
+        m_driveFeedforward = new SimpleMotorFeedforward(0.1, 2.4, 0.0); // kS, kV, kA
 
         m_drivePIDController.setIZone(0.06);
         m_drivePIDController.setIntegratorRange(-0.06, 0.06);
@@ -292,16 +300,21 @@ public class SwerveModule extends SubsystemBase {
 
          final double turnOutput = turningPidController.calculate(currentAngle, state.angle.getRadians());
 
-        final double driveOutput = (currentSpeedPercentage
-                + m_drivePIDController.calculate(
-                        currentSpeedPercentage,
-                        state.speedMetersPerSecond))
-                * state.angle.minus(Rotation2d.fromRadians(currentAngle)).getCos();
+        double targetSpeedMetersPerSecond = state.speedMetersPerSecond
+        * state.angle.minus(Rotation2d.fromRadians(currentAngle)).getCos();
+
+double targetSpeedPercentage = targetSpeedMetersPerSecond / SwerveConstants.MaxMetersPersecond;
+
+final double driveOutput = targetSpeedPercentage
+        + m_drivePIDController.calculate(currentSpeedPercentage, targetSpeedPercentage)
+        + m_driveFeedforward.calculate(targetSpeedMetersPerSecond) / 12.0;
 
         // No FlipSpeed needed - inversion is handled in motor configuration
         driveMotor.set(driveOutput);
 
-        angleMotor.set((turnOutput / Math.PI));
+        double turnFF = TURN_KS * Math.signum(turnOutput);
+        angleMotor.set((turnOutput / Math.PI) + (turnFF / 12.0));
+
 
         MetricService.publish(MetricName.commandedSpeed(moduleNumber), driveOutput);
         MetricService.publish(MetricName.commandedTurn(moduleNumber), (turnOutput / Math.PI));
@@ -329,6 +342,35 @@ public class SwerveModule extends SubsystemBase {
         // SmartDashboard.putNumber("[Swerve]target " + moduleNumber,
         // state.angle.getRadians());
     }
+
+    public void SetDesiredStateWithFF(SwerveModuleState desiredState, double forceNewtons) {
+    double currentSpeedPercentage = getCurrentSpeedAsPercentage();
+    double currentAngle = encoderValue();
+
+    @SuppressWarnings("deprecation")
+    SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(currentAngle));
+
+    double targetSpeedPercentage = (state.speedMetersPerSecond / SwerveConstants.MaxMetersPersecond)
+            * state.angle.minus(Rotation2d.fromRadians(currentAngle)).getCos();
+
+    // Convert force (N) -> acceleration (m/s²) -> feedforward voltage -> percent
+    // F = ma, so a = F/mass. Approximation: use kA from feedforward
+    double ffVolts = m_driveFeedforward.calculate(state.speedMetersPerSecond);
+    double ffPercent = ffVolts / 12.0;
+
+    double pidOutput = m_drivePIDController.calculate(currentSpeedPercentage, targetSpeedPercentage);
+
+    // Clamp drive output to ±1.0
+    final double driveOutput = Math.max(-1.0, Math.min(1.0, 
+            targetSpeedPercentage + pidOutput + ffPercent));
+
+    // Clamp turn output to ±1.0
+    double rawTurnOutput = turningPidController.calculate(currentAngle, state.angle.getRadians());
+    final double turnOutput = Math.max(-1.0, Math.min(1.0, rawTurnOutput / Math.PI));
+
+    driveMotor.set(driveOutput);
+    angleMotor.set(turnOutput);
+}
 
     private void captureConfig() {
 

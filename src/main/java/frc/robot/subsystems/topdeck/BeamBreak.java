@@ -11,7 +11,7 @@ public class BeamBreak extends SubsystemBase {
 
     public BeamBreak() {
         beam1 = new DigitalInput(BEAM_BREAK1);
-        beam2 = new DigitalInput(BEAM_BREAK2);
+        beam2 = new DigitalInput(3);
     }
 
     public boolean getShooter() {

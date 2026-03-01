@@ -23,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.advancer.Advance;
 import frc.robot.commands.auto.AutoCommandFactory;
+import frc.robot.commands.auto.shooter.ShootFromDepot;
+import frc.robot.commands.auto.shooter.ShootFromTrench;
+import frc.robot.commands.auto.shooter.SpinUpShooter;
 import frc.robot.commands.driving.AlineWheels;
 import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.FaceTowardsCoordinates;
@@ -40,7 +43,7 @@ import frc.robot.service.MetricService;
 import frc.robot.subsystems.pathfinding.Vision;
 import frc.robot.subsystems.topdeck.AdvancerSubsystem;
 import frc.robot.subsystems.topdeck.BeamBreak;
-import frc.robot.subsystems.topdeck.HoodSubsystem;
+// import frc.robot.subsystems.topdeck.HoodSubsystem;
 import frc.robot.subsystems.topdeck.IntakeSubystem;
 import frc.robot.subsystems.topdeck.LimitSwitchSubsystem;
 import frc.robot.subsystems.topdeck.ShooterSubsystem;
@@ -50,6 +53,7 @@ import static frc.robot.Constants.HoodConstants.*;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.util.Named;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -118,8 +122,8 @@ public class RobotContainer {
 
   /* Pathplanner stuff */
   private final SendableChooser<Command> PathplannerautoChoosers;
-  @SuppressWarnings("unused")
-  private final SendableChooser<Command> autoChooser;
+  // @SuppressWarnings("unused")
+  // private final SendableChooser<Command> autoChooser;
 
   /* Subsystems */
   @SuppressWarnings("unused")
@@ -128,12 +132,12 @@ public class RobotContainer {
   private final BeamBreak beamBreak = new BeamBreak();
   private final LimitSwitchSubsystem limitSwitches = new LimitSwitchSubsystem();
   private final AdvancerSubsystem A = new AdvancerSubsystem();
-  private final HoodSubsystem H = new HoodSubsystem();
+  // private final HoodSubsystem H = new HoodSubsystem();
   private final DrivetrainIO D = new DrivetrainIO();
   private Vision V;
   // private final Lidar lidar = new Lidar();
 
-  private final LaserCan lc;
+  // private final LaserCan lc;
 
   public RobotContainer() {
 
@@ -145,11 +149,14 @@ public class RobotContainer {
       System.out.println("Vision subsystem failed to initialize: " + e);
     }
 
-    lc = initLaserCAN();
+    // lc = initLaserCAN();
 
     SmartDashboard.putData("[Robot]Vision Pose Estimate", visionPoseEstimate);
     SmartDashboard.putData("[Robot]Overall Pose Estimate", overallPoseEstimate);
     NamedCommands.registerCommand("Aline Wheels", new AlineWheels(D));
+    NamedCommands.registerCommand("Shoot From Depot", new ShootFromDepot(S, A, beamBreak));
+    NamedCommands.registerCommand("Shoot From Trench", new ShootFromTrench(S, A, beamBreak));
+    NamedCommands.registerCommand("Spin Up Shooter", new SpinUpShooter(S));
     NamedCommands.registerCommand("Stop", new Stop(D));
     NamedCommands.registerCommand("Face Hub", new FaceTowardsCoordinates(D,
         11.914,
@@ -157,7 +164,7 @@ public class RobotContainer {
         () -> 0,
         () -> 0));
     PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
-    autoChooser = new AutoCommandFactory(D, lc).generateAutoOptions();
+    // autoChooser = new AutoCommandFactory(D, lc).generateAutoOptions();
     SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
     PathfindingCommand.warmupCommand().schedule();
     // Configure the trigger bindings
@@ -243,10 +250,10 @@ public class RobotContainer {
     Pose2d poseEstimate = D.getPose();
     overallPoseEstimate.setRobotPose(poseEstimate);
     MetricService.publishRobotLocation(poseEstimate);
-    var laserMeasure = lc.getMeasurement();
-    if (laserMeasure != null) {
-      SmartDashboard.putNumber("LaserCan Distance", laserMeasure.distance_mm / 1000.0);
-    }
+    // var laserMeasure = lc.getMeasurement();
+    // if (laserMeasure != null) {
+    //   SmartDashboard.putNumber("LaserCan Distance", laserMeasure.distance_mm / 1000.0);
+    // }
     MetricService.periodic();
 
     DIO_entry.setBoolean(beamBreak.getHopper());

@@ -10,7 +10,7 @@ public class LimitSwitchSubsystem extends SubsystemBase {
     private final DigitalInput limit2;
 
     public LimitSwitchSubsystem() {
-        limit1 = new DigitalInput(LIMIT_SWITCH1_PORT);
+        limit1 = new DigitalInput(9);
         limit2 = new DigitalInput(LIMIT_SWITCH2_PORT);
     }
 

@@ -11,28 +11,22 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Trench to shoot"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Stop"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
+                  "pathName": "Middle To R Climb"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop"
           }
         }
       ]

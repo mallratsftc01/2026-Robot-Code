@@ -2,6 +2,7 @@ package frc.robot.subsystems.drivetrainIOLayers;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,6 +41,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -225,6 +227,17 @@ public class DrivetrainIO extends SubsystemBase {
     // }
   }
 
+  public void driveRobotRelativeWithFF(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
+    var discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    var swerveModuleStates = m_kinematics.toSwerveModuleStates(discretizedSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
+
+   backLeft_0.SetDesiredStateWithFF(swerveModuleStates[0], feedforwards.linearForces()[0].in(edu.wpi.first.units.Units.Newtons));
+backRight_1.SetDesiredStateWithFF(swerveModuleStates[1], feedforwards.linearForces()[1].in(edu.wpi.first.units.Units.Newtons));
+frontRight_2.SetDesiredStateWithFF(swerveModuleStates[2], feedforwards.linearForces()[2].in(edu.wpi.first.units.Units.Newtons));
+frontLeft_3.SetDesiredStateWithFF(swerveModuleStates[3], feedforwards.linearForces()[3].in(edu.wpi.first.units.Units.Newtons));
+}
+
   public void setModuleStates(SwerveModuleState[] swerveModuleStates) {
     backLeft_0.SetDesiredState(swerveModuleStates[0]);
     backRight_1.SetDesiredState(swerveModuleStates[1]);
@@ -268,7 +281,7 @@ public void configureAutoBuilder() {
   this::getPose, // Robot pose supplier
   this::resetPose, // Method to reset odometry (will be called if your auto hasa starting pose)
   this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-  (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will  drive the robot given ROBOT
+  (speeds, feedforwards) -> driveRobotRelativeWithFF(speeds, feedforwards), // Method that will  drive the robot given ROBOT
   // RELATIVE
   // ChassisSpeeds. Also optionally outputs
   // individual
@@ -276,8 +289,8 @@ public void configureAutoBuilder() {
   new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
   // holonomic
   // drive trains
-  new PIDConstants(5, 4, 0.1), // Translation PID constants
-  new PIDConstants(6, 0, 0.0) // Rotation PID constants
+  new PIDConstants(5, 0, 0.1), // Translation PID constants
+  new PIDConstants(0.2, 0, 0.0) // Rotation PID constants
   ),
   config, // The robot configuration
   () -> {
