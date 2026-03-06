@@ -14,7 +14,7 @@ public class LimitSwitchSubsystem extends SubsystemBase {
         limit2 = new DigitalInput(LIMIT_SWITCH2_PORT);
     }
 
-    public boolean getLimit1() {
+    public boolean getClimber() {
         return limit1.get();
     }
 

@@ -25,16 +25,21 @@ public class ClimberSubsystem extends SubsystemBase{
     public ClimberSubsystem() {
         climberMotor = new SparkMax(CLIMBER_MOTOR_CANID, MotorType.kBrushless);
         climberMotor.getEncoder().setPosition(0);
-        SparkBaseConfig CLimberMotorConfig = new SparkMaxConfig();
-        CLimberMotorConfig.smartCurrentLimit(40, 40);
-        CLimberMotorConfig.disableFollowerMode();
+        SparkBaseConfig ClimberMotorConfig = new SparkMaxConfig();
+        ClimberMotorConfig.smartCurrentLimit(40, 40);
+        ClimberMotorConfig.disableFollowerMode();
 
-        CLimberMotorConfig.idleMode(IdleMode.kBrake);
+        ClimberMotorConfig.idleMode(IdleMode.kBrake);
 
-        CLimberMotorConfig.signals.primaryEncoderPositionAlwaysOn(true);
-        CLimberMotorConfig.signals.primaryEncoderPositionPeriodMs(5);
+        ClimberMotorConfig.softLimit.forwardSoftLimitEnabled(true);
+        ClimberMotorConfig.softLimit.forwardSoftLimit(Climber_Down_SetPoint + 50);
+        ClimberMotorConfig.softLimit.reverseSoftLimitEnabled(true);
+        ClimberMotorConfig.softLimit.reverseSoftLimit(0);
 
-        climberMotor.configure(CLimberMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        ClimberMotorConfig.signals.primaryEncoderPositionAlwaysOn(true);
+        ClimberMotorConfig.signals.primaryEncoderPositionPeriodMs(5);
+
+        climberMotor.configure(ClimberMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void JoystickControl(double joy){
@@ -47,8 +52,22 @@ public class ClimberSubsystem extends SubsystemBase{
         return climberMotor.getEncoder().getPosition() >= Climber_Down_SetPoint;
     }
 
+    private boolean IMoveUpToClimbI(){
+        climberMotor.set(-1);
+
+        return climberMotor.getEncoder().getPosition() <= Climber_Up_SetPoint;
+    }
+
     public boolean MoveDownToClimb(){
         if(IMoveDownToClimbI()){
+            stop();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean MoveUpToClimb(){
+        if(IMoveUpToClimbI()){
             stop();
             return true;
         }

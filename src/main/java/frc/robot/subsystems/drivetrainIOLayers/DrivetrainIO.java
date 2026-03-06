@@ -211,20 +211,20 @@ public class DrivetrainIO extends SubsystemBase {
     // swerveModuleStates[2].toString());
     // SmartDashboard.putString("[Drivetrain]module 3",
     // swerveModuleStates[3].toString());
-    // if (xSpeed + ySpeed + rot == 0) {
-    // timeDelay++;
-    // if (timeDelay >= 25) {
-    // setModuleStates(new SwerveModuleState[] {
-    // new SwerveModuleState(0, new Rotation2d(-45)),
-    // new SwerveModuleState(0, new Rotation2d(45)),
-    // new SwerveModuleState(0, new Rotation2d(-45)),
-    // new SwerveModuleState(0, new Rotation2d(45)),
-    // });
-    // }
-    // } else {
-    // timeDelay = 0;
+    if (xSpeed + ySpeed + rot == 0 && !DriverStation.isAutonomous()) {
+    timeDelay++;
+    if (timeDelay >= 50) {
+    setModuleStates(new SwerveModuleState[] {
+    new SwerveModuleState(0, new Rotation2d(-45)),
+    new SwerveModuleState(0, new Rotation2d(45)),
+    new SwerveModuleState(0, new Rotation2d(-45)),
+    new SwerveModuleState(0, new Rotation2d(45)),
+    });
+    }
+    } else {
+    timeDelay = 0;
     setModuleStates(swerveModuleStates);
-    // }
+    }
   }
 
   public void driveRobotRelativeWithFF(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {

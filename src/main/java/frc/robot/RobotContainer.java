@@ -28,6 +28,7 @@ import frc.robot.commands.auto.shooter.ShootFromDepot;
 import frc.robot.commands.auto.shooter.ShootFromTrench;
 import frc.robot.commands.auto.shooter.SpinUpShooter;
 import frc.robot.commands.climber.DownToClimb;
+import frc.robot.commands.climber.UpToClimb;
 import frc.robot.commands.driving.AlineWheels;
 import frc.robot.commands.driving.DriveForSeconds;
 import frc.robot.commands.driving.DriveToLocation;
@@ -121,6 +122,7 @@ public class RobotContainer {
   private final Joystick driver = new Joystick(0);
   private final Joystick operator = new Joystick(1);
   private final Joystick testing = new Joystick(3);
+  private final Joystick climber = new Joystick(2);
 
   /* Driver Buttons */
   private final JoystickButton zeroGyro = new JoystickButton(driver, BACK_BUTTON);
@@ -174,7 +176,7 @@ public class RobotContainer {
         () -> 0,
         () -> 0));
     PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
-    PathplannerautoChoosers.addOption("Climb", new AlineWheels(D).andThen(new DriveForSeconds(D, 2.75).alongWith(new DownToClimb(C))));
+    PathplannerautoChoosers.addOption("Climb", new AlineWheels(D).andThen(new DriveForSeconds(D, 1.25).alongWith(new DownToClimb(C))).andThen(new DriveForSeconds(D, 1.25)).andThen(new DriveForSeconds(D, 0.5)).andThen(new UpToClimb(C)));
     // autoChooser = new AutoCommandFactory(D, lc).generateAutoOptions();
     SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
     PathfindingCommand.warmupCommand().schedule();
@@ -238,8 +240,12 @@ public class RobotContainer {
     // () -> 0)
     // ));
 
-    new JoystickButton(testing, GREEN_BUTTON)
+    new JoystickButton(climber, GREEN_BUTTON)
     .onTrue(new DownToClimb(C));
+
+    new JoystickButton(climber, RED_BUTTON)
+    .onTrue(new UpToClimb(C));
+
     I.setDefaultCommand(new Intake(I, () -> operator.getRawButton(LEFT_BUMPER),
         () -> operator.getRawButton(RIGHT_BUMPER), () -> operator.getPOV() == 270, () -> operator.getPOV() == 90));
 
@@ -253,7 +259,7 @@ public class RobotContainer {
   }
 
   public void teleopPeriodic() {
-    C.JoystickControl(operator.getRawAxis(LEFT_Y_AXIS));
+    // C.JoystickControl(operator.getRawAxis(LEFT_Y_AXIS));
     // I.testSliders(operator.getAxisType(LEFT_X_AXIS));
   }
 
@@ -272,7 +278,7 @@ public class RobotContainer {
 
     DIO_entry.setBoolean(beamBreak.getHopper());
     DIO_entry1.setBoolean(beamBreak.getShooter());
-    DIO_entry2.setBoolean(limitSwitches.getLimit1());
+    DIO_entry2.setBoolean(limitSwitches.getClimber());
     DIO_entry3.setBoolean(limitSwitches.getLimit2());
   }
 

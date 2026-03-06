@@ -153,7 +153,9 @@ public class ShooterSubsystem extends SubsystemBase {
         
         //shooterMotor.setControl(velocityRequest.withVelocity(velocityRPM));
 
-        shooterMotor.setControl(new VelocityVoltage(velocityRPM));
+        shooterMotor.set(velocityRPM);
+
+        // shooterMotor.setControl(new VelocityVoltage(velocityRPM));
 
         return shooterMotor.getVelocity().getValueAsDouble() >= velocityRPM - 5 && shooterMotor.getVelocity().getValueAsDouble() <= velocityRPM + 5 && shooterMotorFollower.getVelocity().getValueAsDouble() >= velocityRPM - 5 && shooterMotorFollower.getVelocity().getValueAsDouble() <= velocityRPM + 5; // Check if within 5 RPM of target
 
