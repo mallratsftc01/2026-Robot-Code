@@ -73,6 +73,7 @@ public class DrivetrainIO extends SubsystemBase {
   private double ySpeed_cur;
   private double rot_cur;
 
+  private double targetHeading;
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(m_backLeftLocation,
       m_backRightLocation,
       m_frontRightLocation, m_frontLeftLocation);

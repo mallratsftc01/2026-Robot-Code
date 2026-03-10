@@ -24,15 +24,15 @@ public class ClimberSubsystem extends SubsystemBase{
     private final SparkMax climberMotor;
     public ClimberSubsystem() {
         climberMotor = new SparkMax(CLIMBER_MOTOR_CANID, MotorType.kBrushless);
-        // climberMotor.getEncoder().setPosition(0);
+        climberMotor.getEncoder().setPosition(0);
         SparkBaseConfig ClimberMotorConfig = new SparkMaxConfig();
         ClimberMotorConfig.smartCurrentLimit(40, 40);
         ClimberMotorConfig.disableFollowerMode();
 
         ClimberMotorConfig.idleMode(IdleMode.kBrake);
 
-        // ClimberMotorConfig.softLimit.forwardSoftLimitEnabled(true);
-        // ClimberMotorConfig.softLimit.forwardSoftLimit(Climber_Down_SetPoint + 50);
+        ClimberMotorConfig.softLimit.forwardSoftLimitEnabled(true);
+        ClimberMotorConfig.softLimit.forwardSoftLimit(Climber_Down_SetPoint);
         // ClimberMotorConfig.softLimit.reverseSoftLimitEnabled(true);
         // ClimberMotorConfig.softLimit.reverseSoftLimit(0);
 

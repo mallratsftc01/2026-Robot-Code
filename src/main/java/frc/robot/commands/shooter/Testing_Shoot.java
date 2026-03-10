@@ -26,7 +26,7 @@ public class Testing_Shoot extends Command {
 
     @Override
     public void execute() {
-        shooter.runShooterAtVelocity(0.85);
+        shooter.runShooterAtVelocity(1);
         // if (shooter.getVelocity() > 5000 && firstRun) {
         //     advancer.advance();
         //     firstRun = false;

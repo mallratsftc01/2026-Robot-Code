@@ -32,6 +32,7 @@ import frc.robot.commands.climber.DownToClimb;
 import frc.robot.commands.climber.UpToClimb;
 import frc.robot.commands.driving.AlineWheels;
 import frc.robot.commands.driving.DriveForSeconds;
+import frc.robot.commands.driving.DriveForSecondsSlow;
 import frc.robot.commands.driving.DriveToLocation;
 import frc.robot.commands.driving.FaceTowardsCoordinates;
 import frc.robot.commands.driving.ResetLocationCommand;
@@ -177,7 +178,7 @@ public class RobotContainer {
         () -> 0,
         () -> 0));
     PathplannerautoChoosers = AutoBuilder.buildAutoChooser();
-    PathplannerautoChoosers.addOption("Climb", new AlineWheels(D).andThen(new DriveForSeconds(D, 1.25).alongWith(new DownToClimb(C))).andThen(new DriveForSeconds(D, 1.25)).andThen(new DriveForSeconds(D, 0.5)).andThen(new UpToClimb(C)));
+    PathplannerautoChoosers.addOption("Climb", new AlineWheels(D).andThen(new DriveForSeconds(D, 1.25).alongWith(new DownToClimb(C))).andThen(new DriveForSeconds(D, 1.25)).andThen(new DriveForSecondsSlow(D, 1.5)).andThen(new UpToClimb(C)));
     // autoChooser = new AutoCommandFactory(D, lc).generateAutoOptions();
     SmartDashboard.putData("[Robot]Auto Chosers", PathplannerautoChoosers);
     PathfindingCommand.warmupCommand().schedule();
