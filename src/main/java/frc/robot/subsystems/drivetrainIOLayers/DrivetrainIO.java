@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.util.CoordinateConverter;
 import frc.robot.Constants.SwerveConstants.Mod1;
 import frc.robot.Constants.SwerveConstants.Mod2;
@@ -108,10 +109,10 @@ public class DrivetrainIO extends SubsystemBase {
 
     ResetGyro();
     try {
-    config = RobotConfig.fromGUISettings();
+      config = RobotConfig.fromGUISettings();
     } catch (IOException | org.json.simple.parser.ParseException e) {
-    e.printStackTrace();
-    throw new RuntimeException(e);
+      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
     var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
@@ -141,12 +142,12 @@ public class DrivetrainIO extends SubsystemBase {
   }
 
   private SwerveModuleState[] getModuleStates() {
-  return new SwerveModuleState[] {
-  backLeft_0.getState(),
-  backRight_1.getState(),
-  frontRight_2.getState(),
-  frontLeft_3.getState(),
-  };
+    return new SwerveModuleState[] {
+        backLeft_0.getState(),
+        backRight_1.getState(),
+        frontRight_2.getState(),
+        frontLeft_3.getState(),
+    };
   }
 
   public SwerveModulePosition[] getModulePositions() {
@@ -233,11 +234,15 @@ public class DrivetrainIO extends SubsystemBase {
     var swerveModuleStates = m_kinematics.toSwerveModuleStates(discretizedSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MaxMetersPersecond);
 
-   backLeft_0.SetDesiredStateWithFF(swerveModuleStates[0], feedforwards.linearForces()[0].in(edu.wpi.first.units.Units.Newtons));
-backRight_1.SetDesiredStateWithFF(swerveModuleStates[1], feedforwards.linearForces()[1].in(edu.wpi.first.units.Units.Newtons));
-frontRight_2.SetDesiredStateWithFF(swerveModuleStates[2], feedforwards.linearForces()[2].in(edu.wpi.first.units.Units.Newtons));
-frontLeft_3.SetDesiredStateWithFF(swerveModuleStates[3], feedforwards.linearForces()[3].in(edu.wpi.first.units.Units.Newtons));
-}
+    backLeft_0.SetDesiredStateWithFF(swerveModuleStates[0],
+        feedforwards.linearForces()[0].in(edu.wpi.first.units.Units.Newtons));
+    backRight_1.SetDesiredStateWithFF(swerveModuleStates[1],
+        feedforwards.linearForces()[1].in(edu.wpi.first.units.Units.Newtons));
+    frontRight_2.SetDesiredStateWithFF(swerveModuleStates[2],
+        feedforwards.linearForces()[2].in(edu.wpi.first.units.Units.Newtons));
+    frontLeft_3.SetDesiredStateWithFF(swerveModuleStates[3],
+        feedforwards.linearForces()[3].in(edu.wpi.first.units.Units.Newtons));
+  }
 
   public void setModuleStates(SwerveModuleState[] swerveModuleStates) {
     backLeft_0.SetDesiredState(swerveModuleStates[0]);
@@ -263,9 +268,9 @@ frontLeft_3.SetDesiredStateWithFF(swerveModuleStates[3], feedforwards.linearForc
   }
 
   private ChassisSpeeds getRobotRelativeSpeeds() {
-  var c = m_kinematics.toChassisSpeeds(getModuleStates());
-  SmartDashboard.putString("[Drivetrain]Robot relative speeds", c.toString());
-  return c;
+    var c = m_kinematics.toChassisSpeeds(getModuleStates());
+    SmartDashboard.putString("[Drivetrain]Robot relative speeds", c.toString());
+    return c;
   }
 
   public Pose2d getPose() {
@@ -276,37 +281,38 @@ frontLeft_3.SetDesiredStateWithFF(swerveModuleStates[3], feedforwards.linearForc
     poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), aPose2d);
   }
 
-public void configureAutoBuilder() {
-  // Configure AutoBuilder last
-  AutoBuilder.configure(
-  this::getPose, // Robot pose supplier
-  this::resetPose, // Method to reset odometry (will be called if your auto hasa starting pose)
-  this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-  (speeds, feedforwards) -> driveRobotRelativeWithFF(speeds, feedforwards), // Method that will  drive the robot given ROBOT
-  // RELATIVE
-  // ChassisSpeeds. Also optionally outputs
-  // individual
-  // module feedforwards
-  new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
-  // holonomic
-  // drive trains
-  new PIDConstants(2, 0, 0.1), // Translation PID constants
-  new PIDConstants(0.2, 0, 0.0) // Rotation PID constants
-  ),
-  config, // The robot configuration
-  () -> {
-  // Boolean supplier that controls when the path will be mirrored for the red
-  // alliance This will flip the path being followed to the red side of the field.
-  // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+  public void configureAutoBuilder() {
+    // Configure AutoBuilder last
+    AutoBuilder.configure(
+        this::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto hasa starting pose)
+        this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) -> driveRobotRelativeWithFF(speeds, feedforwards), // Method that will drive the robot
+                                                                                  // given ROBOT
+        // RELATIVE
+        // ChassisSpeeds. Also optionally outputs
+        // individual
+        // module feedforwards
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for
+            // holonomic
+            // drive trains
+            new PIDConstants(2, 0, 0.1), // Translation PID constants
+            new PIDConstants(0.2, 0, 0.0) // Rotation PID constants
+        ),
+        config, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-  var alliance = DriverStation.getAlliance();
-  if (alliance.isPresent()) {
-  return alliance.get() == DriverStation.Alliance.Red;
-  }
-  return false;
-  },
-  this // Reference to this subsystem to set requirements
-  );
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
   }
 
   public PathConstraints getChassisConstrains() {
