@@ -68,6 +68,26 @@ public class DrivetrainIO extends SubsystemBase {
   private SwerveModule frontRight_2 = new SwerveModule(Mod1.constants);
   private SwerveModule frontLeft_3 = new SwerveModule(Mod2.constants);
 
+		/* adding sysId */
+private final SysIdRoutine sysIdRoutine = new SysIdRoutine(
+    new SysIdRoutine.Config(
+        null,                        // Default ramp rate (1 V/s)
+        edu.wpi.first.units.Units.Volts.of(4), // Limit to 4V for safety
+        null,                        // Default timeout
+        null                         // Default state logger
+    ),
+    new SysIdRoutine.Mechanism(
+        (voltage) -> {
+            backLeft_0.runVoltage(voltage);
+            backRight_1.runVoltage(voltage);
+            frontRight_2.runVoltage(voltage);
+            frontLeft_3.runVoltage(voltage);
+        },
+        null, // No extra log consumer needed
+        this
+    )
+);
+
   private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI, NavXUpdateRate.k100Hz);
 
   private double xSpeed_cur;
@@ -375,5 +395,14 @@ public class DrivetrainIO extends SubsystemBase {
 
     SmartDashboard.putNumber("Vision Update delay", visionUpdateDelayMillis());
   }
+
+  /* methods for sysId */
+public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+}
+
+public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
+}
 
 }

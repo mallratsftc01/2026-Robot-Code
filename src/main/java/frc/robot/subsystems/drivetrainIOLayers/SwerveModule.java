@@ -465,6 +465,10 @@ public class SwerveModule extends SubsystemBase {
 
     public void runVoltage(Voltage voltage) {
         driveMotor.setVoltage(voltage);
+            /* Log data for SysId */
+        SmartDashboard.putNumber("[SysId]drive_position_" + moduleNumber, getPosition().distanceMeters);
+        SmartDashboard.putNumber("[SysId]drive_velocity_" + moduleNumber, getConvertedVelocity());
+            /* end sysId log */
         keepWheelsStrait();
     }
 
